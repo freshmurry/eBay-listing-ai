@@ -1,0 +1,11 @@
+{
+  "name": "ebay-listing-ai",
+  "compatibility_date": "2025-09-26",
+  "pages_build_output_dir": "./dist",
+  "ai": {
+    "binding": "AI"
+  },
+  "browser": {
+    "binding": "BROWSER"
+  }
+}

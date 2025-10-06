@@ -1,0 +1,36 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /_next/
+Disallow: /admin/
+
+# Sitemap
+Sitemap: https://ebaylistingai.com/sitemap.xml
+
+# Crawl-delay for all bots
+Crawl-delay: 1
+
+# Block bots that abuse resources
+User-agent: AhrefsBot
+Crawl-delay: 10
+
+User-agent: SemrushBot
+Crawl-delay: 10
+
+User-agent: MJ12bot
+Crawl-delay: 10
+
+# Allow Google Image Bot
+User-agent: Googlebot-Image
+Allow: /images/
+Allow: /assets/
+
+# Allow social media bots for sharing
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
+User-agent: LinkedInBot
+Allow: /

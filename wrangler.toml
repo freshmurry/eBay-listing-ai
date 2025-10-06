@@ -1,0 +1,10 @@
+name = "ebay-listing-ai"
+compatibility_date = "2025-09-26"
+
+[env.production]
+ai = { binding = "AI" }
+browser = { binding = "BROWSER" }
+
+[env.preview]
+ai = { binding = "AI" }  
+browser = { binding = "BROWSER" }
