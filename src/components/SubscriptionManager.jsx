@@ -6,7 +6,6 @@ import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Crown, Zap, Star, Check, X, ArrowRight } from "lucide-react";
-import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { STRIPE_PLANS, getPlanLimits, initiateCheckout } from "@/utils/stripe";
 import { base44 } from "@/api/base44Client";
@@ -245,7 +244,7 @@ const UpgradeModal = () => {
             🚀 Upgrade Your Plan
           </DialogTitle>
           <DialogDescription className="text-center text-lg">
-            You've reached your monthly limit. Upgrade to continue creating amazing listings!
+            You've reached your limit. Upgrade to continue creating amazing listings!
           </DialogDescription>
         </DialogHeader>
 
@@ -257,7 +256,7 @@ const UpgradeModal = () => {
           </div>
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
-              <span>Listings this month</span>
+              <span>Listings used</span>
               <span>{usage.listingsGenerated} / {limits.listings === -1 ? '∞' : limits.listings}</span>
             </div>
             <Progress value={usagePercentage} className="h-2" />
@@ -324,7 +323,12 @@ const UpgradeModal = () => {
         {/* Footer */}
         <div className="text-center mt-6 pt-6 border-t">
           <p className="text-sm text-slate-600 mb-4">
-            Need a custom solution? <Link to={createPageUrl("Contact")} className="text-blue-600 hover:underline">Contact our sales team</Link>
+            Need a custom solution? <button 
+              onClick={() => window.location.href = createPageUrl("Contact")} 
+              className="text-blue-600 hover:underline bg-transparent border-none cursor-pointer"
+            >
+              Contact our sales team
+            </button>
           </p>
           <p className="text-xs text-slate-500">
             All plans include a 30-day money-back guarantee. Cancel anytime.

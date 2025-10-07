@@ -320,7 +320,7 @@ export default function Blog() {
               </Button>
             </Link>
             <Link to={createPageUrl("Pricing")}>
-              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-blue-600 px-8 py-3">
+              <Button size="lg" variant="outline" className="border-2 border-white text-white hover:bg-white hover:text-blue-600 font-semibold px-8 py-3">
                 View Pricing Plans
               </Button>
             </Link>

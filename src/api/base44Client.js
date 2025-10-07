@@ -59,14 +59,30 @@ export const base44 = {
       UploadFile: async (params) => {
         console.log('Mock UploadFile called with:', params);
         
+        // Validate input
+        if (!params || !params.file) {
+          console.error('No file provided to UploadFile');
+          return { success: false, error: 'No file provided' };
+        }
+        
+        const file = params.file;
+        console.log('Processing file:', { name: file.name, size: file.size, type: file.type });
+        
+        // Check if it's an image
+        if (!file.type.startsWith('image/')) {
+          console.error('File is not an image:', file.type);
+          return { success: false, error: 'File must be an image' };
+        }
+        
         // Simulate a realistic upload delay
         await new Promise(resolve => setTimeout(resolve, 500));
         
-        // If a file is provided, create a blob URL for it (for development)
+        // Create a blob URL for the uploaded file (for development)
         let imageUrl = "https://via.placeholder.com/400x300?text=Uploaded+Image";
-        if (params.file && typeof URL !== 'undefined' && URL.createObjectURL) {
+        if (typeof URL !== 'undefined' && URL.createObjectURL) {
           try {
-            imageUrl = URL.createObjectURL(params.file);
+            imageUrl = URL.createObjectURL(file);
+            console.log('Created blob URL:', imageUrl);
           } catch (error) {
             console.warn('Could not create blob URL, using placeholder:', error);
           }
@@ -76,7 +92,10 @@ export const base44 = {
           success: true, 
           url: imageUrl,
           file_url: imageUrl, // Also provide this as fallback
-          id: "mock-file-" + Date.now()
+          id: "mock-file-" + Date.now(),
+          filename: file.name,
+          size: file.size,
+          type: file.type
         };
       },
       
@@ -244,7 +263,29 @@ export const base44 = {
       },
       // Backward compatibility aliases
       list: async (sortBy, limit) => {
-        const projects = JSON.parse(localStorage.getItem('listingProjects') || '[]');
+        let projects = JSON.parse(localStorage.getItem('listingProjects') || '[]');
+        
+        // Ensure all projects have a created_date
+        projects = projects.map(project => ({
+          ...project,
+          created_date: project.created_date || project.createdAt || new Date().toISOString()
+        }));
+        
+        // Apply sorting
+        if (sortBy) {
+          const isDesc = sortBy.startsWith('-');
+          const field = isDesc ? sortBy.substring(1) : sortBy;
+          projects.sort((a, b) => {
+            const aVal = a[field];
+            const bVal = b[field];
+            if (isDesc) {
+              return bVal > aVal ? 1 : bVal < aVal ? -1 : 0;
+            } else {
+              return aVal > bVal ? 1 : aVal < bVal ? -1 : 0;
+            }
+          });
+        }
+        
         return projects.slice(0, limit || projects.length);
       },
       get: async (id) => {
@@ -253,8 +294,66 @@ export const base44 = {
       }
     },
     SellerProfile: {
-      findMany: async () => [],
-      create: async (data) => ({ id: "profile-" + Date.now(), ...data })
+      findMany: async () => {
+        const profiles = JSON.parse(localStorage.getItem('sellerProfiles') || '[]');
+        return profiles;
+      },
+      filter: async (criteria, sortBy = "-created_date", limit = null) => {
+        const profiles = JSON.parse(localStorage.getItem('sellerProfiles') || '[]');
+        let filtered = profiles;
+        
+        // Apply criteria filtering
+        if (criteria && Object.keys(criteria).length > 0) {
+          filtered = profiles.filter(profile => {
+            return Object.entries(criteria).every(([key, value]) => {
+              return profile[key] === value;
+            });
+          });
+        }
+        
+        // Apply sorting
+        if (sortBy) {
+          const isDesc = sortBy.startsWith('-');
+          const field = isDesc ? sortBy.substring(1) : sortBy;
+          filtered.sort((a, b) => {
+            const aVal = a[field];
+            const bVal = b[field];
+            if (isDesc) {
+              return bVal > aVal ? 1 : bVal < aVal ? -1 : 0;
+            } else {
+              return aVal > bVal ? 1 : aVal < bVal ? -1 : 0;
+            }
+          });
+        }
+        
+        // Apply limit
+        if (limit && limit > 0) {
+          filtered = filtered.slice(0, limit);
+        }
+        
+        return filtered;
+      },
+      create: async (data) => {
+        const profiles = JSON.parse(localStorage.getItem('sellerProfiles') || '[]');
+        const newProfile = {
+          id: "profile-" + Date.now(),
+          created_date: new Date().toISOString(),
+          ...data
+        };
+        profiles.push(newProfile);
+        localStorage.setItem('sellerProfiles', JSON.stringify(profiles));
+        return newProfile;
+      },
+      update: async (id, data) => {
+        const profiles = JSON.parse(localStorage.getItem('sellerProfiles') || '[]');
+        const index = profiles.findIndex(p => p.id === id);
+        if (index !== -1) {
+          profiles[index] = { ...profiles[index], ...data };
+          localStorage.setItem('sellerProfiles', JSON.stringify(profiles));
+          return profiles[index];
+        }
+        throw new Error('Profile not found');
+      }
     },
     UserSubscription: {
       findMany: async () => [],

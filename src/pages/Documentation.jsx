@@ -12,19 +12,19 @@ import SEOHead from "@/components/SEOHead";
 const documentationSections = [
   {
     icon: <BookOpen className="h-8 w-8 text-blue-600" />,
-    title: "Getting Started Guide",
+    title: "GettingStarted",
     description: "Complete walkthrough from account setup to your first eBay listing description.",
     topics: ["Account registration", "Initial setup", "Creating your first description", "Publishing to eBay"]
   },
   {
     icon: <Code className="h-8 w-8 text-green-600" />,
-    title: "API Documentation",
-    description: "Integrate our AI technology into your existing workflow with our RESTful API.",
-    topics: ["Authentication", "API endpoints", "Rate limiting", "Code examples"]
+    title: "CreateFirstDescription", 
+    description: "Step-by-step tutorial to create your first professional eBay listing description.",
+    topics: ["Product analysis", "Description generation", "SEO optimization", "Final review"]
   },
   {
     icon: <Lightbulb className="h-8 w-8 text-purple-600" />,
-    title: "Best Practices",
+    title: "BestPractices",
     description: "Proven strategies to maximize your eBay listing performance and sales conversion.",
     topics: ["SEO optimization", "Keyword research", "Image guidelines", "Pricing strategies"]
   },
@@ -37,9 +37,9 @@ const documentationSections = [
 ];
 
 const tutorials = [
-  { title: "How to Create Your First eBay Description", duration: "5 min read", difficulty: "Beginner" },
-  { title: "Optimizing Descriptions for eBay SEO", duration: "8 min read", difficulty: "Intermediate" },
-  { title: "Using Bulk Processing for High-Volume Sellers", duration: "10 min read", difficulty: "Advanced" },
+  { title: "CreateFirstDescription", duration: "5 min read", difficulty: "Beginner" },
+  { title: "BestPractices", duration: "8 min read", difficulty: "Intermediate" },
+  { title: "GettingStarted", duration: "3 min read", difficulty: "Beginner" },
   { title: "Integrating with Your Existing Workflow", duration: "12 min read", difficulty: "Advanced" },
   { title: "Understanding Analytics and Performance Metrics", duration: "6 min read", difficulty: "Intermediate" }
 ];
@@ -55,7 +55,7 @@ const faqs = [
   },
   {
     question: "Is there a limit to how many descriptions I can generate?",
-    answer: "Limits depend on your subscription plan. Free users get 5 descriptions per month, while paid plans offer unlimited generations with various feature tiers."
+    answer: "Limits depend on your subscription plan. Free users get 3 descriptions total, while paid plans offer unlimited generations with various feature tiers."
   },
   {
     question: "How does the URL extraction feature work?",
@@ -141,9 +141,11 @@ export default function Documentation() {
                       </li>
                     ))}
                   </ul>
-                  <Button variant="outline" className="w-full">
-                    Read Documentation
-                  </Button>
+                  <Link to={createPageUrl(`Documentation/${section.title.replace(/[^a-zA-Z0-9]/g, '')}`)}>  
+                    <Button variant="outline" className="w-full">
+                      Read Documentation
+                    </Button>
+                  </Link>
                 </CardContent>
               </Card>
             ))}
@@ -176,9 +178,11 @@ export default function Documentation() {
                       </Badge>
                     </div>
                   </div>
-                  <Button variant="ghost">
-                    Read Tutorial →
-                  </Button>
+                  <Link to={createPageUrl(`Documentation/${tutorial.title.replace(/[^a-zA-Z0-9]/g, '')}`)}>  
+                    <Button variant="ghost">
+                      Read Tutorial →
+                    </Button>
+                  </Link>
                 </CardContent>
               </Card>
             ))}

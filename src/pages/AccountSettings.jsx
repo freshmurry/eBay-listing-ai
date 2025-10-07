@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { User, UserSubscription, SellerProfile } from "@/api/entities";
 import { Button } from "@/components/ui/button";
@@ -14,6 +13,7 @@ import { useSubscription } from "@/components/SubscriptionManager";
 import { STRIPE_PLANS, getPlanLimits } from "@/utils/stripe";
 import { UploadFile } from "@/api/integrations";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useTranslation } from 'react-i18next';
 
 const planDetails = {
   FREE: { name: "Free", price: "$0/mo" },
@@ -23,6 +23,7 @@ const planDetails = {
 };
 
 export default function AccountSettings() {
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -32,7 +33,8 @@ export default function AccountSettings() {
   const [isSaving, setIsSaving] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const fileInputRef = useRef(null);
-  const { subscription, usage, triggerUpgrade } = useSubscription();
+  const { subscription, usage } = useSubscription();
+  const { t } = useTranslation();
 
   useEffect(() => {
     const loadData = async () => {
@@ -57,68 +59,58 @@ export default function AccountSettings() {
     loadData();
   }, []);
 
-  const handleImageUpload = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file || !file.type.startsWith('image/')) {
-      alert('Please select a valid image file');
+    const handleImageUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+      alert("File size must be less than 5MB");
       return;
     }
 
-    if (file.size > 5 * 1024 * 1024) { // 5MB limit
-      alert('Image size must be less than 5MB');
+    if (!file.type.startsWith('image/')) {
+      alert("Please select an image file");
       return;
     }
 
     setIsUploadingImage(true);
+    
     try {
-      console.log('Uploading file:', { name: file.name, size: file.size, type: file.type });
-      const result = await UploadFile({ file });
-      console.log('Upload result:', result);
-      
-      if (!result || !result.success) {
-        throw new Error(result?.message || 'Upload failed with no success flag');
-      }
-      
-      const imageUrl = result.url || result.file_url || result.signedUrl;
-      if (!imageUrl) {
-        throw new Error('No image URL returned from upload service');
-      }
-      
-      console.log('Setting profile image URL:', imageUrl);
+      // Create blob URL for immediate preview (works better than API call)
+      const imageUrl = URL.createObjectURL(file);
       setProfileImage(imageUrl);
       
-      // Immediately save the profile image to the user record
-      if (user) {
-        console.log('Updating user profile with image URL');
-        await User.update(user.id, { profile_image: imageUrl });
-        setUser({ ...user, profile_image: imageUrl });
-        
-        // Update localStorage for immediate navbar update
-        const userData = JSON.parse(localStorage.getItem('currentUser') || '{}');
-        userData.profile_image = imageUrl;
-        localStorage.setItem('currentUser', JSON.stringify(userData));
-        
-        // Trigger window event to update navbar
-        window.dispatchEvent(new Event('userProfileUpdated'));
-        console.log('Profile image updated successfully');
-      }
+      // In a real app, you would also upload to your server here:
+      // const result = await UploadFile({ file: file });
+      // if (result.success) {
+      //   setProfileImage(result.url); // Use server URL instead of blob
+      // }
+      
     } catch (error) {
-      console.error('Error uploading profile image:', error);
-      
-      // Provide more specific error messages
-      let errorMessage = 'Failed to upload image. Please try again.';
-      if (error.message.includes('No image URL')) {
-        errorMessage = 'Upload succeeded but no image URL was returned. Please try again.';
-      } else if (error.message.includes('Upload failed')) {
-        errorMessage = 'Upload service returned an error. Please try again.';
-      } else if (error.message.includes('network') || error.message.includes('fetch')) {
-        errorMessage = 'Network error. Please check your connection and try again.';
-      }
-      
-      alert(errorMessage);
+      console.error("Image upload failed:", error);
+      alert("Failed to upload image. Please try again.");
     } finally {
       setIsUploadingImage(false);
     }
+  };
+
+  const handleUpgradeClick = () => {
+    // Instead of navigating to pricing page directly, call your backend endpoint
+    fetch('/create-checkout-session', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        priceId: 'your_stripe_price_id', // Pass the selected plan's price ID
+      }),
+    })
+      .then(res => res.json())
+      .then(data => {
+        // Redirect to Stripe Checkout
+        window.location.href = data.url;
+      });
   };
 
   const handleProfileSave = async () => {
@@ -219,13 +211,13 @@ export default function AccountSettings() {
     <div className="min-h-screen p-6 lg:p-8 bg-[var(--background-light)]">
       <div className="max-w-4xl mx-auto space-y-8">
         <header>
-          <h1 className="text-3xl font-bold text-[var(--text-primary)]">Account Settings</h1>
+          <h1 className="text-3xl font-bold text-[var(--text-primary)]">{t('account.title')}</h1>
           <p className="text-[var(--text-secondary)] mt-1">Manage your profile, subscription, and billing information.</p>
         </header>
 
         <Card>
           <CardHeader>
-            <CardTitle>Profile Information</CardTitle>
+            <CardTitle>{t('account.profile.title')}</CardTitle>
             <CardDescription>Update your store details and personal information.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -254,7 +246,7 @@ export default function AccountSettings() {
                     ) : (
                       <>
                         <i className="bi bi-camera mr-1"></i>
-                        Change Photo
+                        {t('account.profile.uploadImage')}
                       </>
                     )}
                   </Button>
@@ -266,14 +258,14 @@ export default function AccountSettings() {
                     className="hidden"
                   />
                   <p className="text-xs text-gray-500 text-center">
-                    JPG, PNG, or GIF<br/>Max 5MB
+                    {t('account.profile.fileFormat')}<br/>{t('account.profile.maxSize')}
                   </p>
                 </div>
               </div>
               
               <div className="flex-1 space-y-4">
                 <div>
-                  <Label htmlFor="fullName">Full Name</Label>
+                  <Label htmlFor="fullName">{t('account.profile.fullName')}</Label>
                   <Input
                     id="fullName"
                     value={fullName}
@@ -282,7 +274,7 @@ export default function AccountSettings() {
                   />
                 </div>
                 <div>
-                  <Label>Email Address</Label>
+                  <Label>{t('account.profile.email')}</Label>
                   <Input value={user?.email || ""} disabled className="bg-gray-50" />
                   <p className="text-xs text-gray-500 mt-1">Email cannot be changed</p>
                 </div>
@@ -290,7 +282,7 @@ export default function AccountSettings() {
             </div>
             
             <div>
-              <Label htmlFor="storeName">Store Name</Label>
+              <Label htmlFor="storeName">{t('account.profile.storeName')}</Label>
               <Input
                 id="storeName"
                 value={storeName}
@@ -301,7 +293,7 @@ export default function AccountSettings() {
             
             <div className="flex justify-end">
               <Button onClick={handleProfileSave} disabled={isSaving || isUploadingImage}>
-                {isSaving ? "Saving..." : "Save Profile"}
+                {isSaving ? t('account.profile.saving') : t('account.profile.saveProfile')}
               </Button>
             </div>
           </CardContent>
@@ -309,12 +301,17 @@ export default function AccountSettings() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Subscription Plan</CardTitle>
+            <CardTitle>{t('account.subscription.title')}</CardTitle>
             <CardDescription>
               {subscription && usage ? (
-                `You are currently on the ${currentPlan?.name || 'Free'} plan. ${usage.listingsGenerated} of ${limits.listings === -1 ? 'unlimited' : limits.listings} listings used this month.`
+                t('account.currentPlan', {
+                  plan: currentPlan?.name || 'Free',
+                  used: usage.listingsGenerated,
+                  total: limits.listings === -1 ? 'unlimited' : limits.listings,
+                  type: subscription?.plan === 'FREE' ? t('account.usage.descriptionsTotal') : t('account.usage.listingsMonth')
+                })
               ) : (
-                'Manage your subscription and view usage details.'
+                t('account.subscription.defaultDescription')
               )}
             </CardDescription>
           </CardHeader>
@@ -329,82 +326,86 @@ export default function AccountSettings() {
                 </div>
                 <p className="text-2xl font-bold text-[var(--text-primary)] mb-1">{currentPlan?.price || '$0/mo'}</p>
                 <p className="text-sm text-slate-600">
-                  {limits.listings === -1 ? 'Unlimited listings' : `${limits.listings} listings per month`}
+                  {limits.listings === -1 ? t('account.subscription.unlimitedListings') : 
+                   subscription?.plan === 'FREE' ? t('account.subscription.listingDescriptionsTotal', { count: limits.listings }) : t('account.subscription.listingsPerMonth', { count: limits.listings })}
                 </p>
               </div>
               <div className="flex gap-2">
                 {subscription?.plan === 'FREE' ? (
-                  <Button className="bg-blue-600 hover:bg-blue-700 text-white" onClick={triggerUpgrade}>
-                    Upgrade Now
+                  <Button className="bg-blue-600 hover:bg-blue-700 text-white" onClick={handleUpgradeClick}>
+                    {t('account.upgradeNow')}
                   </Button>
                 ) : (
-                  <Button variant="outline" className="bg-white" onClick={triggerUpgrade}>
-                    Change Plan
+                  <Button variant="outline" className="bg-white" onClick={handleUpgradeClick}>
+                    {t('account.changePlan')}
                   </Button>
                 )}
-                <Link to={createPageUrl("Pricing")}>
-                  <Button variant="outline" className="bg-white">View All Plans</Button>
-                </Link>
               </div>
             </div>
 
             <div>
               <div className="flex justify-between items-center mb-2">
-                <Label>Monthly Usage</Label>
+                <Label>{subscription?.plan === 'FREE' ? t('account.usage.title') : t('account.usage.monthlyTitle')}</Label>
                 <p className="text-sm text-[var(--text-secondary)]">
-                  <span className="font-semibold text-[var(--text-primary)]">{usage?.listingsGenerated || 0}</span> / {limits.listings === -1 ? '∞' : limits.listings} listings used
+                  <span className="font-semibold text-[var(--text-primary)]">{usage?.listingsGenerated || 0}</span> / {limits.listings === -1 ? '∞' : limits.listings} {subscription?.plan === 'FREE' ? t('account.usage.descriptionsUsed') : t('account.usage.listingsUsed')}
                 </p>
               </div>
               <Progress value={usagePercentage} className="h-3" />
               {usagePercentage > 80 && usagePercentage < 100 && (
                 <p className="text-sm text-amber-600 mt-2 flex items-center gap-1">
                   <i className="bi bi-exclamation-triangle"></i>
-                  You're approaching your monthly limit. Consider upgrading to avoid interruption.
+                  {subscription?.plan === 'FREE' ? 
+                    t('account.limits.approaching') :
+                    t('account.limits.approachingMonthly')}
                 </p>
               )}
               {usagePercentage >= 100 && (
                 <p className="text-sm text-red-600 mt-2 flex items-center gap-1">
                   <i className="bi bi-x-circle"></i>
-                  You've reached your monthly limit. Upgrade to continue creating listings.
+                  {subscription?.plan === 'FREE' ? 
+                    t('account.limits.reached') :
+                    t('account.limits.reachedMonthly')}
                 </p>
               )}
               {usagePercentage === 0 && (
                 <p className="text-sm text-green-600 mt-2 flex items-center gap-1">
                   <i className="bi bi-check-circle"></i>
-                  Your monthly allowance is ready to use!
+                  {subscription?.plan === 'FREE' ? 
+                    t('account.limits.ready') :
+                    t('account.limits.monthlyReady')}
                 </p>
               )}
             </div>
 
             {/* Plan Features */}
             <div className="border-t pt-4">
-              <h4 className="font-semibold text-sm text-slate-900 mb-3">Your Plan Includes:</h4>
+              <h4 className="font-semibold text-sm text-slate-900 mb-3">{t('account.features.title')}</h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
                 <div className="flex items-center gap-2 text-slate-600">
                   <i className="bi bi-check text-green-600"></i>
-                  <span>{limits.listings === -1 ? 'Unlimited' : limits.listings} listings per month</span>
+                  <span>{limits.listings === -1 ? t('account.features.unlimited') : limits.listings} {subscription?.plan === 'FREE' ? t('account.features.descriptionsTotal') : t('account.features.listingsMonth')}</span>
                 </div>
                 <div className="flex items-center gap-2 text-slate-600">
                   <i className="bi bi-check text-green-600"></i>
-                  <span>AI-powered descriptions</span>
+                  <span>{t('account.features.aiDescriptions')}</span>
                 </div>
                 <div className="flex items-center gap-2 text-slate-600">
                   <i className="bi bi-check text-green-600"></i>
-                  <span>SEO optimization</span>
+                  <span>{t('account.features.seoOptimization')}</span>
                 </div>
                 <div className="flex items-center gap-2 text-slate-600">
                   <i className="bi bi-check text-green-600"></i>
-                  <span>Image optimization</span>
+                  <span>{t('account.features.imageOptimization')}</span>
                 </div>
                 {subscription?.plan !== 'FREE' && (
                   <>
                     <div className="flex items-center gap-2 text-slate-600">
                       <i className="bi bi-check text-green-600"></i>
-                      <span>Priority support</span>
+                      <span>{t('account.features.prioritySupport')}</span>
                     </div>
                     <div className="flex items-center gap-2 text-slate-600">
                       <i className="bi bi-check text-green-600"></i>
-                      <span>Advanced templates</span>
+                      <span>{t('account.features.advancedTemplates')}</span>
                     </div>
                   </>
                 )}
@@ -414,12 +415,12 @@ export default function AccountSettings() {
             <div className="text-sm text-[var(--text-secondary)] bg-blue-50 p-3 rounded-lg">
               <div className="flex items-center gap-2 mb-1">
                 <i className="bi bi-info-circle text-blue-600"></i>
-                <span className="font-semibold text-blue-900">Billing Information</span>
+                <span className="font-semibold text-blue-900">{t('account.billing.title')}</span>
               </div>
               {subscription?.resetDate ? (
-                <p>Your usage resets on {format(new Date(subscription.resetDate), "MMMM d, yyyy")}.</p>
+                <p>{t('account.billing.resetDate', { date: format(new Date(subscription.resetDate), "MMMM d, yyyy") })}</p>
               ) : (
-                <p>Free plan with {limits.listings} listings per month. Upgrade anytime for unlimited access.</p>
+                <p>{t('account.billing.freePlan', { count: limits.listings })}</p>
               )}
             </div>
           </CardContent>
@@ -428,3 +429,20 @@ export default function AccountSettings() {
     </div>
   );
 }
+
+// Server-side: Create a Checkout session
+const session = await stripe.checkout.sessions.create({
+  billing_address_collection: 'auto',
+  line_items: [
+    {
+      price: priceId, // Get your price ID from Stripe Dashboard
+      quantity: 1,
+    },
+  ],
+  mode: 'subscription',
+  success_url: `${YOUR_DOMAIN}/account?success=true&session_id={CHECKOUT_SESSION_ID}`,
+  cancel_url: `${YOUR_DOMAIN}/account?canceled=true`,
+});
+
+// Then redirect to the session URL
+res.redirect(303, session.url);

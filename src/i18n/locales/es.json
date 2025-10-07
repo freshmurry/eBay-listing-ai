@@ -1,0 +1,166 @@
+{
+  "nav": {
+    "features": "Características",
+    "pricing": "Precios", 
+    "about": "Acerca de",
+    "dashboard": "Panel",
+    "createDescription": "Crear Descripción",
+    "myDescriptions": "Mis Descripciones",
+    "signIn": "Iniciar Sesión",
+    "getStarted": "Comenzar",
+    "settings": "Configuración",
+    "signOut": "Cerrar Sesión"
+  },
+  "common": {
+    "loading": "Cargando...",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "view": "Ver",
+    "copy": "Copiar",
+    "export": "Exportar",
+    "upgrade": "Actualizar",
+    "close": "Cerrar",
+    "next": "Siguiente",
+    "previous": "Anterior",
+    "continue": "Continuar",
+    "back": "Atrás",
+    "finish": "Finalizar",
+    "submit": "Enviar",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "all": "Todos",
+    "active": "Activo",
+    "draft": "Borrador",
+    "published": "Publicado",
+    "success": "Éxito",
+    "error": "Error",
+    "warning": "Advertencia",
+    "info": "Información"
+  },
+  "plans": {
+    "free": {
+      "name": "Gratis",
+      "price": "$0/mes",
+      "description": "3 descripciones en total",
+      "features": [
+        "3 descripciones generadas por IA en total",
+        "Descripciones básicas de IA",
+        "Plantillas estándar",
+        "Soporte por email"
+      ]
+    },
+    "pro": {
+      "name": "Pro",
+      "price": "$29/mes",
+      "description": "100 listados por mes",
+      "features": [
+        "100 descripciones generadas por IA por mes",
+        "Descripciones avanzadas de IA",
+        "Plantillas premium",
+        "Soporte prioritario",
+        "Operaciones en lote",
+        "Panel de análisis"
+      ]
+    },
+    "enterprise": {
+      "name": "Empresa", 
+      "price": "$99/mes",
+      "description": "Listados ilimitados",
+      "features": [
+        "Listados ilimitados",
+        "Entrenamiento de IA personalizado",
+        "Solución de marca blanca",
+        "Soporte telefónico 24/7",
+        "Acceso a API",
+        "Integraciones personalizadas",
+        "Gerente de cuenta dedicado"
+      ]
+    }
+  },
+  "home": {
+    "hero": {
+      "title": "Transforma tus Listados de eBay con Descripciones Potenciadas por IA",
+      "subtitle": "Genera descripciones de productos convincentes y optimizadas para SEO que aumentan las ventas y te ahorran horas de tiempo de escritura.",
+      "cta": "Comenzar Gratis",
+      "watchDemo": "Ver Demo"
+    },
+    "features": {
+      "title": "¿Por qué elegir eBay DescriptionAI?",
+      "subtitle": "Todo lo que necesitas para crear listados profesionales de eBay que conviertan",
+      "ai": {
+        "title": "Escritura Potenciada por IA",
+        "description": "IA avanzada crea descripciones convincentes adaptadas a tus productos"
+      },
+      "seo": {
+        "title": "Optimización SEO",
+        "description": "Optimización de palabras clave integrada para mejorar la visibilidad de tu listado"
+      },
+      "templates": {
+        "title": "Plantillas Profesionales",
+        "description": "Elige entre plantillas probadas en la industria que convierten navegadores en compradores"
+      },
+      "bulk": {
+        "title": "Operaciones en Lote", 
+        "description": "Procesa múltiples listados a la vez para ahorrar tiempo y escalar tu negocio"
+      },
+      "languages": {
+        "title": "Más de 50 Idiomas",
+        "description": "Alcanza clientes globales con descripciones en su idioma nativo"
+      },
+      "analytics": {
+        "title": "Análisis de Rendimiento",
+        "description": "Rastrea qué descripciones funcionan mejor y optimiza tu estrategia"
+      }
+    }
+  },
+  "wizard": {
+    "title": "Crear Descripción de eBay",
+    "steps": {
+      "source": "Fuente del Producto",
+      "basics": "Información Básica", 
+      "images": "Imágenes",
+      "branding": "Marca",
+      "shipping": "Envío",
+      "seo": "SEO y Palabras Clave",
+      "preview": "Vista Previa y Exportar"
+    }
+  },
+  "dashboard": {
+    "title": "Panel",
+    "welcome": "Bienvenido de vuelta",
+    "quickStats": "Estadísticas Rápidas",
+    "recentActivity": "Actividad Reciente",
+    "usage": "Uso",
+    "monthlyUsage": "Uso Mensual",
+    "createNew": "Crear Nueva Descripción",
+    "viewAll": "Ver Todas las Descripciones"
+  },
+  "account": {
+    "title": "Configuración de Cuenta",
+    "profile": "Información de Perfil",
+    "subscription": "Suscripción", 
+    "usage": "Uso",
+    "monthlyUsage": "Uso Mensual",
+    "changePlan": "Cambiar Plan",
+    "upgradeNow": "Actualizar Ahora",
+    "currentPlan": "Actualmente tienes el plan {{plan}}. {{used}} de {{total}} {{type}}.",
+    "limits": {
+      "approaching": "Te estás acercando a tu límite. Considera actualizar para evitar interrupciones.",
+      "approachingMonthly": "Te estás acercando a tu límite mensual. Considera actualizar para evitar interrupciones.",
+      "reached": "Has alcanzado tu límite. Actualiza para continuar creando listados.",
+      "reachedMonthly": "Has alcanzado tu límite mensual. Actualiza para continuar creando listados.",
+      "ready": "¡Tu asignación está lista para usar!",
+      "readyMonthly": "¡Tu asignación mensual está lista para usar!"
+    }
+  },
+  "subscription": {
+    "modal": {
+      "title": "Actualiza tu Plan",
+      "subtitle": "¡Has alcanzado tu límite. Actualiza para continuar creando listados increíbles!",
+      "currentUsage": "Uso Actual",
+      "listings": "Listados usados"
+    }
+  }
+}

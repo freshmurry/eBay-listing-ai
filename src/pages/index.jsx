@@ -20,6 +20,10 @@ import Terms from "./Terms";
 import TenStrategiesIncreaseSales from "./blog/TenStrategiesIncreaseSales";
 import UltimateGuideEbaySEO from "./blog/UltimateGuideEbaySEO";
 import AIRevolutionizingEcommerce from "./blog/AIRevolutionizingEcommerce";
+import GettingStarted from "./Documentation/GettingStarted";
+import BestPractices from "./Documentation/BestPractices";
+import CreateFirstDescription from "./Documentation/CreateFirstDescription";
+import ComingSoon from "./ComingSoon";
 
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 
@@ -90,6 +94,11 @@ function PagesContent() {
                 <Route path="/blog/ten-strategies-increase-sales" element={<TenStrategiesIncreaseSales />} />
                 <Route path="/blog/ultimate-guide-ebay-seo-optimization" element={<UltimateGuideEbaySEO />} />
                 <Route path="/blog/ai-revolutionizing-ecommerce-content-creation" element={<AIRevolutionizingEcommerce />} />
+                <Route path="/Documentation/GettingStarted" element={<GettingStarted />} />
+                <Route path="/Documentation/BestPractices" element={<BestPractices />} />
+                <Route path="/Documentation/CreateFirstDescription" element={<CreateFirstDescription />} />
+                {/* Catch-all route for coming soon pages */}
+                <Route path="*" element={<ComingSoon />} />
             </Routes>
         </>
     );

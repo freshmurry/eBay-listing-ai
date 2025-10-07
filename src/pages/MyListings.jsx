@@ -1,277 +1,482 @@
-
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { ListingProject } from "@/api/entities";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Link } from "react-router-dom";
-import { createPageUrl } from "@/utils";
-import { motion, AnimatePresence } from "framer-motion";
+import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { 
+  Eye, 
+  Copy, 
+  Pencil, 
+  Download, 
+  Trash2, 
+  Search,
+  ChevronLeft,
+  ChevronRight 
+} from "lucide-react";
 import { format } from "date-fns";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import ListingPreview from "@/components/preview/ListingPreview";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Eye, Copy, Pencil, Download, Trash2, Check } from "lucide-react";
 
-
-export default function MyListings() {
+const MyListings = () => {
   const [projects, setProjects] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [filter, setFilter] = useState("ALL");
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
   const [previewProject, setPreviewProject] = useState(null);
-  const [copiedProjectId, setCopiedProjectId] = useState(null);
+  const [showPreview, setShowPreview] = useState(false);
+  const itemsPerPage = 15;
 
+  // Load projects on component mount
   useEffect(() => {
+    const loadProjects = async () => {
+      try {
+        setLoading(true);
+        
+        // Get all projects using the correct method
+        const allProjects = await ListingProject.findMany();
+        setProjects(allProjects || []);
+      } catch (error) {
+        console.error("Error loading projects:", error);
+        setProjects([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     loadProjects();
   }, []);
 
-  const loadProjects = async () => {
-    setIsLoading(true);
-    try {
-      const data = await ListingProject.list("-created_date");
-      setProjects(data);
-    } catch (error) {
-      console.error("Error loading projects:", error);
+  // Filter and search logic
+  const filteredProjects = useMemo(() => {
+    let filtered = projects;
+
+    // Apply status filter
+    if (statusFilter !== "all") {
+      filtered = filtered.filter(project => project.status === statusFilter);
     }
-    setIsLoading(false);
+
+    // Apply search filter
+    if (searchTerm) {
+      const searchLower = searchTerm.toLowerCase();
+      filtered = filtered.filter(project => 
+        project.title?.toLowerCase().includes(searchLower) ||
+        project.description?.toLowerCase().includes(searchLower) ||
+        project.brand?.toLowerCase().includes(searchLower) ||
+        project.model?.toLowerCase().includes(searchLower)
+      );
+    }
+
+    return filtered;
+  }, [projects, statusFilter, searchTerm]);
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredProjects.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentProjects = filteredProjects.slice(startIndex, endIndex);
+
+  // Reset to first page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, statusFilter]);
+
+  const handleStatusFilter = (status) => {
+    setStatusFilter(status);
   };
 
-  const deleteProject = async (projectId) => {
-    if (confirm("Are you sure you want to delete this project?")) {
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  const handleEdit = (projectId) => {
+    // Navigate to wizard with project ID
+    window.location.href = `/wizard?id=${projectId}`;
+  };
+
+  const handleDownload = (project) => {
+    // Download project data as JSON
+    const dataStr = JSON.stringify(project, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${project.title || 'project'}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleCopyLink = async (projectId) => {
+    const link = `${window.location.origin}/listing/${projectId}`;
+    try {
+      await navigator.clipboard.writeText(link);
+      // You might want to show a toast notification here
+      console.log("Link copied to clipboard");
+    } catch (error) {
+      console.error("Failed to copy link:", error);
+    }
+  };
+
+  const handlePreview = (project) => {
+    setPreviewProject(project);
+    setShowPreview(true);
+  };
+
+  const handleDelete = async (projectId) => {
+    if (window.confirm("Are you sure you want to delete this project?")) {
       try {
         await ListingProject.delete(projectId);
-        setProjects(projects.filter(p => p.id !== projectId));
+        setProjects(prev => prev.filter(p => p.id !== projectId));
       } catch (error) {
         console.error("Error deleting project:", error);
       }
     }
   };
 
-  const getStatusColor = (status) => {
+  const getStatusBadgeVariant = (status) => {
     switch (status) {
-      case "COMPLETED": return "bg-emerald-100 text-emerald-800 border-emerald-200";
-      default: return "bg-amber-100 text-amber-800 border-amber-200";
+      case "draft": return "secondary";
+      case "published": return "default";
+      case "sold": return "destructive";
+      default: return "outline";
     }
   };
 
-  const filteredProjects = projects.filter(project => {
-    if (filter === "ALL") return true;
-    return project.status === filter;
-  });
-
-  const downloadHtml = (project) => {
-    const blob = new Blob([project.htmlPreview || ''], { type: 'text/html' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${project.title?.replace(/[^a-z0-9]/gi, '_') || 'listing'}.html`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
-
-  const copyHtml = (project) => {
-    if (project.htmlPreview) {
-      navigator.clipboard.writeText(project.htmlPreview);
-      setCopiedProjectId(project.id);
-      setTimeout(() => setCopiedProjectId(null), 2000);
+  const renderImagePreview = (project) => {
+    if (project.images && project.images.length > 0) {
+      const firstImage = project.images[0];
+      
+      // Handle different image formats safely
+      let imageUrl = null;
+      if (typeof firstImage === 'string') {
+        imageUrl = firstImage;
+      } else if (firstImage && typeof firstImage === 'object') {
+        imageUrl = firstImage.url || firstImage.src || null;
+      }
+      
+      if (imageUrl) {
+        return (
+          <div className="relative w-full h-25 mb-3 overflow-hidden rounded-md bg-gray-100">
+            <img
+              src={imageUrl}
+              alt={project.title || "Product image"}
+              className="w-full h-full object-cover transition-transform hover:scale-105"
+              onError={(e) => {
+                e.target.style.display = 'none';
+                e.target.parentElement.innerHTML = '<div class="w-full h-full flex items-center justify-center bg-gray-200 text-gray-500 text-sm">No image</div>';
+              }}
+            />
+          </div>
+        );
+      }
     }
+    
+    return (
+      <div className="w-full h-32 mb-3 bg-gray-100 rounded-md flex items-center justify-center">
+        <span className="text-gray-500 text-sm">No image</span>
+      </div>
+    );
   };
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading your listings...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <>
-      <div className="min-h-screen p-6 lg:p-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-8">
-            <div>
-                            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                My Descriptions
-              </h1>
-                            <p className="text-gray-600">
-                Manage and export your eBay description projects
-              </p>
-            </div>
-            <Link to={createPageUrl("Wizard")}>
-                            <Button onClick={() => window.location.href = '/wizard'} className="bg-blue-600 hover:bg-blue-700">
-                Create New Description
-              </Button>
-            </Link>
+    <div className="container mx-auto px-4 py-8">
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">My Listings</h1>
+        <p className="text-gray-600">Manage your eBay listing projects</p>
+      </div>
+
+      {/* Controls */}
+      <div className="mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          {/* Search Bar */}
+          <div className="relative max-w-md">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Input
+              type="text"
+              placeholder="Search projects..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
           </div>
 
-          <div className="flex gap-2 mb-8">
-            {["ALL", "DRAFT", "COMPLETED"].map((status) => (
+          {/* Filter Buttons */}
+          <div className="flex flex-wrap gap-2">
+            <Button
+              variant={statusFilter === "all" ? "default" : "outline"}
+              size="sm"
+              onClick={() => handleStatusFilter("all")}
+            >
+              All ({projects.length})
+            </Button>
+            <Button
+              variant={statusFilter === "draft" ? "default" : "outline"}
+              size="sm"
+              onClick={() => handleStatusFilter("draft")}
+            >
+              Drafts ({projects.filter(p => p.status === "draft").length})
+            </Button>
+            <Button
+              variant={statusFilter === "published" ? "default" : "outline"}
+              size="sm"
+              onClick={() => handleStatusFilter("published")}
+            >
+              Published ({projects.filter(p => p.status === "published").length})
+            </Button>
+            <Button
+              variant={statusFilter === "sold" ? "default" : "outline"}
+              size="sm"
+              onClick={() => handleStatusFilter("sold")}
+            >
+              Sold ({projects.filter(p => p.status === "sold").length})
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Results Info */}
+      <div className="mb-4 text-sm text-gray-600">
+        Showing {startIndex + 1}-{Math.min(endIndex, filteredProjects.length)} of {filteredProjects.length} projects
+        {searchTerm && ` for "${searchTerm}"`}
+      </div>
+
+      {/* Projects Grid */}
+      {currentProjects.length === 0 ? (
+        <div className="text-center py-12">
+          <div className="text-gray-500 mb-4">
+            {searchTerm ? "No projects match your search." : "No projects found."}
+          </div>
+          <Button onClick={() => window.location.href = "/wizard"}>
+            Create Your First Project
+          </Button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+          {currentProjects.map((project) => (
+            <Card key={project.id} className="hover:shadow-lg transition-shadow">
+              <CardHeader className="pb-3">
+                {renderImagePreview(project)}
+                <div className="flex items-start justify-between">
+                  <div className="flex-1 min-w-0">
+                    <CardTitle className="text-lg line-clamp-2 mb-1">
+                      {project.title || "Untitled Project"}
+                    </CardTitle>
+                    <p className="text-sm text-gray-600 line-clamp-2">
+                      {project.description || "No description"}
+                    </p>
+                  </div>
+                  <Badge variant={getStatusBadgeVariant(project.status)} className="ml-2 flex-shrink-0">
+                    {project.status || "draft"}
+                  </Badge>
+                </div>
+              </CardHeader>
+              
+              <CardContent>
+                {/* Project Details */}
+                <div className="space-y-2 mb-4 text-sm">
+                  {project.brand && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">Brand:</span>
+                      <span className="font-medium">{project.brand}</span>
+                    </div>
+                  )}
+                  {project.model && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">Model:</span>
+                      <span className="font-medium">{project.model}</span>
+                    </div>
+                  )}
+                  {project.price && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">Price:</span>
+                      <span className="font-medium text-green-600">${project.price}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Created:</span>
+                    <span className="font-medium">
+                      {project.createdAt ? format(new Date(project.createdAt), "MMM d, yyyy") : "Unknown"}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <TooltipProvider>
+                  <div className="flex gap-1">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handlePreview(project)}
+                          className="h-8 w-8 p-0"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Preview listing</p>
+                      </TooltipContent>
+                    </Tooltip>
+                    
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleEdit(project.id)}
+                          className="h-8 w-8 p-0"
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Edit project</p>
+                      </TooltipContent>
+                    </Tooltip>
+                    
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleDownload(project)}
+                          className="h-8 w-8 p-0"
+                        >
+                          <Download className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Export project</p>
+                      </TooltipContent>
+                    </Tooltip>
+                    
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleCopyLink(project.id)}
+                          className="h-8 w-8 p-0"
+                        >
+                          <Copy className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Copy link</p>
+                      </TooltipContent>
+                    </Tooltip>
+                    
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          onClick={() => handleDelete(project.id)}
+                          className="h-8 w-8 p-0"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Delete project</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                </TooltipProvider>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center space-x-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+            className="flex items-center gap-1"
+          >
+            <ChevronLeft className="h-4 w-4" />
+            Previous
+          </Button>
+          
+          <div className="flex space-x-1">
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
               <Button
-                key={status}
-                variant={filter === status ? "default" : "outline"}
-                onClick={() => setFilter(status)}
-                className={filter === status ? "bg-brand-primary hover:bg-brand-primary-hover text-white rounded-lg" : "rounded-lg"}
+                key={page}
+                variant={currentPage === page ? "default" : "outline"}
+                size="sm"
+                onClick={() => handlePageChange(page)}
+                className="min-w-[2.5rem]"
               >
-                {status === "ALL" ? "All Projects" : status.charAt(0) + status.slice(1).toLowerCase()}
+                {page}
               </Button>
             ))}
           </div>
 
-          {isLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {Array(6).fill(0).map((_, i) => (
-                <Card key={i} className="animate-pulse bg-white">
-                  <CardHeader>
-                    <div className="h-4 bg-slate-200 rounded w-3/4"></div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="h-32 bg-slate-200 rounded mb-4"></div>
-                    <div className="h-3 bg-slate-200 rounded w-1/2"></div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          ) : filteredProjects.length === 0 ? (
-            <div className="text-center py-16 bg-white rounded-xl border border-[var(--border-color)]">
-              <i className="bi bi-file-earmark-text text-5xl text-slate-300 mx-auto mb-4"></i>
-              <h3 className="text-xl font-semibold text-[var(--text-primary)] mb-2">No projects found</h3>
-              <p className="text-[var(--text-secondary)] mb-6">
-                {filter === "ALL" ? "Create your first listing to get started!" : `No ${filter.toLowerCase()} projects found.`}
-              </p>
-              <Link to={createPageUrl("Wizard")}>
-                                <Button onClick={() => window.location.href = '/wizard'} variant="outline">
-                  Create First Description
-                </Button>
-              </Link>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <AnimatePresence>
-                {filteredProjects.map((project, index) => (
-                  <motion.div
-                    key={project.id}
-                    layout
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ delay: index * 0.1 }}
-                  >
-                    <Card className="bg-white hover:shadow-xl transition-all duration-300 group border border-[var(--border-color)] flex flex-col h-full">
-                      <CardHeader className="pb-3">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1 min-w-0">
-                            <CardTitle className="text-lg font-semibold truncate text-[var(--text-primary)]">
-                              {project.title || 'Untitled Project'}
-                            </CardTitle>
-                            <div className="flex items-center gap-2 mt-2">
-                              <Badge className={`${getStatusColor(project.status)} border text-xs`}>
-                                {project.status === 'COMPLETED' ? 'Completed' : 'Draft'}
-                              </Badge>
-                              <span className="text-xs text-[var(--text-secondary)]">
-                                {format(new Date(project.created_date), "MMM d, yyyy")}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      </CardHeader>
-                      <CardContent className="flex-grow flex flex-col">
-                        <div className="flex-grow">
-                          {project.images?.[0] ? (
-                            <div className="aspect-video bg-slate-100 rounded-lg overflow-hidden mb-4">
-                              <img 
-                                src={project.images[0]} 
-                                alt={project.title}
-                                className="w-full h-full object-cover"
-                              />
-                            </div>
-                          ) : (
-                             <div className="aspect-video bg-slate-100 rounded-lg flex items-center justify-center mb-4">
-                                <i className="bi bi-image text-4xl text-slate-300"></i>
-                             </div>
-                          )}
-                        </div>
-                        
-                        <div className="flex justify-around items-center pt-4 border-t mt-4">
-                           <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Button 
-                                    variant="ghost" 
-                                    size="icon" 
-                                    className="text-slate-500 hover:text-slate-900"
-                                    onClick={() => {
-                                      if (project.status === "DRAFT") {
-                                        window.location.href = createPageUrl("Wizard") + "?projectId=" + project.id;
-                                      } else {
-                                        setPreviewProject(project);
-                                      }
-                                    }}
-                                  >
-                                    <Eye className="w-5 h-5" />
-                                  </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p>{project.status === 'DRAFT' ? 'Continue Editing' : 'View Description'}</p>
-                                </TooltipContent>
-                              </Tooltip>
-
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                   <Link to={createPageUrl("Wizard") + "?projectId=" + project.id}>
-                                    <Button variant="ghost" size="icon" className="text-slate-500 hover:text-brand-primary">
-                                      <Pencil className="w-5 h-5" />
-                                    </Button>
-                                  </Link>
-                                </TooltipTrigger>
-                                <TooltipContent><p>Edit</p></TooltipContent>
-                              </Tooltip>
-
-                              {project.status === "COMPLETED" && (
-                                <>
-                                  <Tooltip>
-                                    <TooltipTrigger asChild>
-                                      <Button variant="ghost" size="icon" className="text-slate-500 hover:text-slate-900" onClick={() => copyHtml(project)}>
-                                        {copiedProjectId === project.id ? <Check className="w-5 h-5 text-emerald-500" /> : <Copy className="w-5 h-5" />}
-                                      </Button>
-                                    </TooltipTrigger>
-                                    <TooltipContent><p>{copiedProjectId === project.id ? 'Copied!' : 'Copy HTML'}</p></TooltipContent>
-                                  </Tooltip>
-
-                                  <Tooltip>
-                                    <TooltipTrigger asChild>
-                                      <Button variant="ghost" size="icon" className="text-slate-500 hover:text-slate-900" onClick={() => downloadHtml(project)}>
-                                        <Download className="w-5 h-5" />
-                                      </Button>
-                                    </TooltipTrigger>
-                                    <TooltipContent><p>Export HTML</p></TooltipContent>
-                                  </Tooltip>
-                                </>
-                              )}
-
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Button variant="ghost" size="icon" className="text-red-500 hover:text-red-700" onClick={() => deleteProject(project.id)}>
-                                    <Trash2 className="w-5 h-5" />
-                                  </Button>
-                                </TooltipTrigger>
-                                <TooltipContent><p>Delete</p></TooltipContent>
-                              </Tooltip>
-                           </TooltipProvider>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </div>
-          )}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className="flex items-center gap-1"
+          >
+            Next
+            <ChevronRight className="h-4 w-4" />
+          </Button>
         </div>
-      </div>
-      <Dialog open={!!previewProject} onOpenChange={() => setPreviewProject(null)}>
-        <DialogContent className="max-w-4xl h-[90vh] bg-white p-0">
-          <DialogHeader className="p-6 border-b">
-            <DialogTitle>{previewProject?.title}</DialogTitle>
+      )}
+
+      {/* Preview Modal */}
+      <Dialog open={showPreview} onOpenChange={setShowPreview}>
+        <DialogContent className="max-w-[60vw] w-[99vw] max-h-[88vh] h-[88vh] p-2 overflow-hidden">
+          <DialogHeader className="pb-2">
+            <DialogTitle className="text-base">
+              {previewProject?.title || "Listing Preview"}
+            </DialogTitle>
           </DialogHeader>
-          <div className="overflow-auto h-full">
-            {previewProject && <ListingPreview project={previewProject} />}
+          <div className="overflow-auto h-[calc(98vh-4rem)]">
+            {previewProject && (
+              <ListingPreview 
+                project={previewProject}
+                isVisible={showPreview}
+              />
+            )}
           </div>
         </DialogContent>
       </Dialog>
-    </>
+    </div>
   );
-}
+};
+
+export default MyListings;

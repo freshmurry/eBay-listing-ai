@@ -1,0 +1,501 @@
+{
+  "nav": {
+    "features": "Features",
+    "pricing": "Pricing", 
+    "about": "About",
+    "dashboard": "Dashboard",
+    "createDescription": "Create Description",
+    "myDescriptions": "My Descriptions",
+    "signIn": "Sign In",
+    "getStarted": "Get Started",
+    "settings": "Settings",
+    "signOut": "Sign Out"
+  },
+  "common": {
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "view": "View",
+    "copy": "Copy",
+    "export": "Export",
+    "upgrade": "Upgrade",
+    "close": "Close",
+    "next": "Next",
+    "previous": "Previous",
+    "continue": "Continue",
+    "back": "Back",
+    "finish": "Finish",
+    "submit": "Submit",
+    "search": "Search",
+    "filter": "Filter",
+    "all": "All",
+    "active": "Active",
+    "draft": "Draft",
+    "published": "Published",
+    "success": "Success",
+    "error": "Error",
+    "warning": "Warning",
+    "info": "Info"
+  },
+  "plans": {
+    "free": {
+      "name": "Free",
+      "price": "$0/mo",
+      "description": "3 listing descriptions total",
+      "features": [
+        "3 AI-generated descriptions total",
+        "Basic AI descriptions",
+        "Standard templates",
+        "Email support"
+      ]
+    },
+    "pro": {
+      "name": "Pro",
+      "price": "$29/mo",
+      "description": "100 listings per month",
+      "features": [
+        "100 AI-generated descriptions per month",
+        "Advanced AI descriptions",
+        "Premium templates",
+        "Priority support",
+        "Bulk operations",
+        "Analytics dashboard"
+      ]
+    },
+    "enterprise": {
+      "name": "Enterprise", 
+      "price": "$99/mo",
+      "description": "Unlimited listings",
+      "features": [
+        "Unlimited listings",
+        "Custom AI training",
+        "White-label solution",
+        "24/7 phone support",
+        "API access",
+        "Custom integrations",
+        "Dedicated account manager"
+      ]
+    }
+  },
+  "home": {
+    "header": {
+      "pricing": "Pricing",
+      "faq": "FAQ", 
+      "signIn": "Sign In",
+      "getStarted": "Get Started"
+    },
+    "hero": {
+      "badge": "AI-Powered eBay Listings",
+      "title": "Generate Professional eBay Listings in",
+      "titleHighlight": " Minutes",
+      "subtitle": "Transform any product URL into a stunning, SEO-optimized eBay listing with AI-powered copywriting, professional templates, and smart optimization features.",
+      "startTrial": "Start Free Trial",
+      "watchDemo": "Watch Demo"
+    },
+    "features": {
+      "title": "Everything You Need to Dominate eBay",
+      "subtitle": "Our AI-powered platform handles every aspect of creating professional eBay listings",
+      "urlToListing": {
+        "title": "URL to Listing",
+        "description": "Paste any product URL and watch our AI extract title, description, images, and specifications automatically."
+      },
+      "aiCopywriting": {
+        "title": "AI Copywriting",
+        "description": "Transform basic product info into compelling, SEO-optimized copy that converts browsers into buyers."
+      },
+      "seoOptimization": {
+        "title": "SEO Optimization",
+        "description": "Boost visibility with intelligent keyword research, competitor analysis, and eBay-specific SEO tactics."
+      },
+      "imageManagement": {
+        "title": "Image Management",
+        "description": "Upload, organize, and optimize product images with drag-and-drop simplicity and automatic resizing."
+      },
+      "optimalTiming": {
+        "title": "Optimal Timing",
+        "description": "Get AI-powered recommendations for the best days and times to list your items for maximum visibility."
+      },
+      "readyHtml": {
+        "title": "Ready-to-Use HTML",
+        "description": "Export professional, responsive HTML that you can copy and paste directly into eBay's listing editor."
+      }
+    },
+    "pricing": {
+      "title": "Start Free, Scale as You Grow",
+      "subtitle": "Choose the perfect plan for your eBay business",
+      "free": "Free",
+      "basic": "Basic",
+      "standard": "Standard", 
+      "premium": "Premium",
+      "freeDescription": "1 listing/month",
+      "basicDescription": "10 listings/month",
+      "standardDescription": "20 listings/month",
+      "premiumDescription": "Unlimited listings",
+      "mostPopular": "Most Popular",
+      "viewAllPlans": "View All Plans & Features"
+    },
+    "footer": {
+      "tagline": "Generate professional eBay listings with AI-powered optimization.",
+      "product": "Product",
+      "support": "Support",
+      "legal": "Legal",
+      "features": "Features",
+      "demo": "Demo",
+      "helpCenter": "Help Center",
+      "contact": "Contact",
+      "privacyPolicy": "Privacy Policy",
+      "termsOfService": "Terms of Service",
+      "copyright": "© 2024 eBay DescriptionAI. All rights reserved."
+    },
+    "stats": {
+      "title": "Trusted by Sellers Worldwide",
+      "descriptions": "Descriptions Created",
+      "savings": "Hours Saved",
+      "sellers": "Active Sellers",
+      "languages": "Languages Supported"
+    },
+    "testimonials": {
+      "title": "What Our Customers Say",
+      "subtitle": "Join thousands of successful eBay sellers who trust our AI"
+    },
+    "cta": {
+      "title": "Ready to Transform Your eBay Business?",
+      "subtitle": "Join thousands of sellers who've increased their sales with AI-powered descriptions",
+      "button": "Get Started Free"
+    }
+  },
+  "wizard": {
+    "title": "Create eBay Description",
+    "steps": {
+      "source": "Product Source",
+      "basics": "Product Basics", 
+      "images": "Images",
+      "branding": "Branding",
+      "shipping": "Shipping",
+      "seo": "SEO & Keywords",
+      "preview": "Preview & Export"
+    },
+    "source": {
+      "title": "How would you like to start?",
+      "subtitle": "Choose your preferred method to begin creating your listing",
+      "url": {
+        "title": "Import from URL",
+        "description": "Paste a product URL and we'll extract the details"
+      },
+      "manual": {
+        "title": "Manual Entry",
+        "description": "Enter product details manually for full control"
+      },
+      "urlPlaceholder": "Paste product URL here..."
+    },
+    "basics": {
+      "title": "Product Information",
+      "subtitle": "Tell us about your product",
+      "productTitle": "Product Title",
+      "brand": "Brand",
+      "model": "Model",
+      "condition": "Condition",
+      "category": "Category",
+      "description": "Product Description"
+    },
+    "images": {
+      "title": "Product Images",
+      "subtitle": "Upload images of your product",
+      "upload": "Upload Images",
+      "dragDrop": "Drag and drop images here"
+    },
+    "branding": {
+      "title": "Store Branding",
+      "subtitle": "Customize your store information",
+      "storeName": "Store Name",
+      "returnPolicy": "Return Policy",
+      "warranty": "Warranty Information"
+    },
+    "shipping": {
+      "title": "Shipping Information", 
+      "subtitle": "Set up your shipping details",
+      "domesticShipping": "Domestic Shipping",
+      "internationalShipping": "International Shipping",
+      "handlingTime": "Handling Time"
+    },
+    "seo": {
+      "title": "SEO & Keywords",
+      "subtitle": "Optimize for search visibility",
+      "keywords": "Keywords",
+      "highlights": "Key Features"
+    }
+  },
+  "dashboard": {
+    "title": "Welcome to eBay Listing Description AI",
+    "subtitle": "Generate professional eBay descriptions with AI-powered optimization",
+    "welcome": "Welcome back",
+    "quickStats": "Quick Stats",
+    "recentActivity": "Recent Activity",
+    "createNew": "Create New Description",
+    "viewAll": "View All Descriptions",
+    "usageLimitReached": "Usage Limit Reached",
+    "confirmDelete": "Are you sure you want to delete this project?",
+    "deleteError": "Failed to delete project.",
+    "stats": {
+      "totalProjects": "Total Projects",
+      "completed": "Completed", 
+      "drafts": "Drafts",
+      "usage": "Usage",
+      "monthlyUsage": "Monthly Usage",
+      "noProjects": "No projects yet",
+      "allTime": "All time",
+      "readyToPublish": "Ready to publish",
+      "inProgress": "In progress",
+      "loading": "Loading..."
+    },
+    "filters": {
+      "allProjects": "All Projects",
+      "draft": "Draft",
+      "completed": "Completed"
+    },
+    "projectCard": {
+      "untitledProject": "Untitled Project",
+      "completed": "Completed",
+      "draft": "Draft",
+      "created": "Created",
+      "images": "images",
+      "clickToEdit": "Click to edit project",
+      "bestTimeToList": "Best Time to List",
+      "gettingSuggestion": "Getting suggestion...",
+      "preview": "Preview",
+      "delete": "Delete"
+    },
+    "emptyState": {
+      "noProjects": "No projects yet",
+      "noDraftProjects": "No draft projects",
+      "noCompletedProjects": "No completed projects", 
+      "createFirstListing": "Create your first listing to get started!",
+      "startCreating": "Start creating a new listing to see drafts here!",
+      "completeDescription": "Complete a description in the wizard to see it here!",
+      "createNewProject": "Create New Project"
+    },
+    "preview": {
+      "title": "Preview of your completed eBay listing description"
+    }
+  },
+  "myListings": {
+    "title": "My Descriptions", 
+    "subtitle": "Manage all your eBay descriptions",
+    "search": "Search descriptions...",
+    "filters": {
+      "all": "All",
+      "draft": "Draft", 
+      "published": "Published",
+      "archived": "Archived"
+    },
+    "empty": {
+      "title": "No descriptions yet",
+      "subtitle": "Create your first eBay description to get started",
+      "button": "Create Description"
+    },
+    "actions": {
+      "view": "View",
+      "edit": "Edit",
+      "copy": "Copy",
+      "export": "Export",
+      "delete": "Delete"
+    }
+  },
+  "account": {
+    "title": "Account Settings",
+    "changePlan": "Change Plan",
+    "upgradeNow": "Upgrade Now",
+    "currentPlan": "You are currently on the {{plan}} plan. {{used}} of {{total}} {{type}}.",
+    "limits": {
+      "approaching": "You're approaching your limit. Consider upgrading to avoid interruption.",
+      "approachingMonthly": "You're approaching your monthly limit. Consider upgrading to avoid interruption.",
+      "reached": "You've reached your limit. Upgrade to continue creating listings.",
+      "reachedMonthly": "You've reached your monthly limit. Upgrade to continue creating listings.",
+      "ready": "Your allowance is ready to use!",
+      "monthlyReady": "Your monthly allowance is ready to use!"
+    },
+    "profile": {
+      "title": "Profile Information",
+      "fullName": "Full Name",
+      "email": "Email Address",
+      "profileImage": "Profile Image",
+      "uploadImage": "Upload New Image",
+      "fileFormat": "JPG, PNG, or GIF",
+      "maxSize": "Max 5MB",
+      "saveProfile": "Save Profile",
+      "saving": "Saving...",
+      "saved": "Profile updated successfully!",
+      "storeInfo": "Store Information",
+      "storeName": "Store Name"
+    },
+    "subscription": {
+      "title": "Subscription & Usage",
+      "defaultDescription": "Manage your subscription and view usage details.",
+      "unlimitedListings": "Unlimited listings",
+      "listingDescriptionsTotal": "{{count}} listing descriptions total",
+      "listingsPerMonth": "{{count}} listings per month",
+      "currentPlan": "Current Plan",
+      "planFeatures": "Plan Features",
+      "usageStats": "Usage Statistics",
+      "billing": "Billing Information",
+      "nextBilling": "Next billing date",
+      "cancel": "Cancel Subscription",
+      "reactivate": "Reactivate Subscription"
+    },
+    "usage": {
+      "title": "Usage",
+      "monthlyTitle": "Monthly Usage",
+      "descriptionsUsed": "descriptions used",
+      "descriptionsTotal": "descriptions total",
+      "listingsUsed": "listings used",
+      "listingsMonth": "listings this month",
+      "unlimited": "Unlimited"
+    },
+    "features": {
+      "title": "Your Plan Includes:",
+      "unlimited": "Unlimited",
+      "descriptionsTotal": "descriptions total",
+      "listingsMonth": "listings per month",
+      "aiDescriptions": "AI-powered descriptions",
+      "seoOptimization": "SEO optimization",
+      "imageOptimization": "Image optimization",
+      "prioritySupport": "Priority support",
+      "advancedTemplates": "Advanced templates"
+    },
+    "billing": {
+      "title": "Billing Information",
+      "resetDate": "Your usage resets on {{date}}.",
+      "freePlan": "Free plan with {{count}} listing descriptions total. Upgrade anytime for unlimited access."
+    }
+  },
+  "pricing": {
+    "title": "Choose Your Plan",
+    "subtitle": "Choose the perfect plan for your eBay selling needs. All plans include our core AI features with no hidden fees.",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "save": "Save 17%",
+    "currentPlan": "Current Plan",
+    "mostPopular": "Most Popular",
+    "getStarted": "Get Started",
+    "processing": "Processing...",
+    "year": "year",
+    "month": "month",
+    "saveYearly": "Save ${{amount}} yearly",
+    "plans": {
+      "free": {
+        "name": "Free",
+        "description": "Perfect for getting started",
+        "cta": "Get Started Free",
+        "features": [
+          "3 AI-generated descriptions total",
+          "Basic SEO optimization",
+          "Standard templates", 
+          "Email support",
+          "Basic browser rendering"
+        ]
+      },
+      "pro": {
+        "name": "Pro", 
+        "description": "Ideal for regular sellers",
+        "cta": "Start Free Trial",
+        "features": [
+          "100 AI-generated descriptions per month",
+          "Advanced SEO optimization",
+          "Premium templates",
+          "Priority email support", 
+          "Advanced browser rendering",
+          "Detailed analytics & insights",
+          "Bulk operations",
+          "A/B testing tools"
+        ]
+      },
+      "enterprise": {
+        "name": "Enterprise",
+        "description": "For high-volume sellers", 
+        "cta": "Contact Sales",
+        "features": [
+          "Unlimited AI-generated descriptions",
+          "Custom AI training",
+          "White-label solution",
+          "24/7 phone support",
+          "API access",
+          "Custom integrations", 
+          "Dedicated account manager",
+          "Custom templates",
+          "Priority processing"
+        ]
+      }
+    },
+    "allPlansInclude": {
+      "title": "All plans include",
+      "aiDescriptions": {
+        "title": "AI-Powered Descriptions",
+        "description": "Generate compelling, SEO-optimized listing descriptions"
+      },
+      "templates": {
+        "title": "Template Library", 
+        "description": "Professional templates for every product category"
+      },
+      "browserRendering": {
+        "title": "Browser Rendering",
+        "description": "Extract product details from any URL automatically"
+      }
+    },
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "questions": [
+        {
+          "question": "Can I change my plan at any time?",
+          "answer": "Yes, you can upgrade or downgrade your plan at any time. Changes take effect immediately, and you'll be prorated for any difference in cost."
+        },
+        {
+          "question": "Is there a free trial?", 
+          "answer": "Yes! All paid plans include a 14-day free trial. You can cancel anytime during the trial period without being charged."
+        },
+        {
+          "question": "What payment methods do you accept?",
+          "answer": "We accept all major credit cards (Visa, MasterCard, American Express) and PayPal through our secure Stripe integration."
+        },
+        {
+          "question": "Can I cancel my subscription?",
+          "answer": "Absolutely. You can cancel your subscription at any time from your account settings. You'll continue to have access until the end of your current billing period."
+        },
+        {
+          "question": "Do you offer refunds?",
+          "answer": "We offer a 30-day money-back guarantee for all paid plans. If you're not satisfied, contact us for a full refund."
+        }
+      ]
+    },
+    "cta": {
+      "title": "Ready to supercharge your eBay descriptions?",
+      "subtitle": "Join thousands of sellers who are already using AI to create better descriptions faster.",
+      "startTrial": "Start Your Free Trial",
+      "viewDemo": "View Demo"
+    }
+  },
+  "subscription": {
+    "modal": {
+      "title": "Upgrade Your Plan",
+      "subtitle": "You've reached your limit. Upgrade to continue creating amazing listings!",
+      "currentUsage": "Current Usage",
+      "listings": "Listings used"
+    }
+  },
+  "footer": {
+    "company": "Company",
+    "product": "Product", 
+    "support": "Support",
+    "legal": "Legal",
+    "followUs": "Follow Us",
+    "allRightsReserved": "All rights reserved"
+  },
+  "errors": {
+    "pageNotFound": "Page Not Found",
+    "serverError": "Server Error",
+    "networkError": "Network Error",
+    "tryAgain": "Try Again",
+    "goHome": "Go Home"
+  }
+}

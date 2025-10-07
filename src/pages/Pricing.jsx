@@ -10,95 +10,10 @@ import { base44 } from "@/api/base44Client";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
-
-const pricingTiers = [
-  {
-    id: 'free',
-    name: "Free",
-    description: "Perfect for getting started",
-    price: { monthly: 0, yearly: 0 },
-    icon: Zap,
-    features: [
-      "5 AI-generated descriptions per month",
-      "Basic SEO optimization", 
-      "Standard templates",
-      "Email support",
-      "Basic browser rendering",
-    ],
-    limitations: [
-      "Limited AI requests",
-      "Basic templates only",
-    ],
-    cta: "Get Started Free",
-    popular: false,
-  },
-  {
-    id: 'price_pro_monthly',
-    name: "Pro",
-    description: "Ideal for regular sellers",
-    price: { monthly: 29, yearly: 290 },
-    icon: Star,
-    features: [
-      "100 AI-generated descriptions per month",
-      "Advanced SEO optimization",
-      "Premium templates",
-      "Priority email support",
-      "Advanced browser rendering",
-      "Detailed analytics & insights",
-      "Bulk operations",
-      "A/B testing tools",
-    ],
-    limitations: [],
-    cta: "Start Free Trial",
-    popular: true,
-  },
-  {
-    id: 'price_enterprise_monthly', 
-    name: "Enterprise",
-    description: "For high-volume sellers",
-    price: { monthly: 99, yearly: 990 },
-    icon: Crown,
-    features: [
-      "Unlimited AI-generated descriptions",
-      "Custom AI training",
-      "White-label solution", 
-      "24/7 phone support",
-      "API access",
-      "Custom integrations",
-      "Dedicated account manager",
-      "Custom templates",
-      "Priority processing",
-    ],
-    limitations: [],
-    cta: "Contact Sales",
-    popular: false,
-  },
-];
-
-const faqs = [
-  {
-    question: "Can I change my plan at any time?",
-    answer: "Yes, you can upgrade or downgrade your plan at any time. Changes take effect immediately, and you'll be prorated for any difference in cost."
-  },
-  {
-    question: "Is there a free trial?",
-    answer: "Yes! All paid plans include a 14-day free trial. You can cancel anytime during the trial period without being charged."
-  },
-  {
-    question: "What payment methods do you accept?",
-    answer: "We accept all major credit cards (Visa, MasterCard, American Express) and PayPal through our secure Stripe integration."
-  },
-  {
-    question: "Can I cancel my subscription?",
-    answer: "Absolutely. You can cancel your subscription at any time from your account settings. You'll continue to have access until the end of your current billing period."
-  },
-  {
-    question: "Do you offer refunds?",
-    answer: "We offer a 30-day money-back guarantee for all paid plans. If you're not satisfied, contact us for a full refund."
-  },
-];
+import { useTranslation } from 'react-i18next';
 
 export default function Pricing() {
+  const { t } = useTranslation();
   const [isYearly, setIsYearly] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [loadingPlan, setLoadingPlan] = useState(null);
@@ -106,6 +21,44 @@ export default function Pricing() {
   const [currentSubscription, setCurrentSubscription] = useState(null);
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+
+  const pricingTiers = [
+    {
+      id: 'free',
+      name: t('pricing.plans.free.name'),
+      description: t('pricing.plans.free.description'),
+      price: { monthly: 0, yearly: 0 },
+      icon: Zap,
+      features: t('pricing.plans.free.features', { returnObjects: true }),
+      limitations: [],
+      cta: t('pricing.plans.free.cta'),
+      popular: false,
+    },
+    {
+      id: 'price_pro_monthly',
+      name: t('pricing.plans.pro.name'),
+      description: t('pricing.plans.pro.description'),
+      price: { monthly: 29, yearly: 290 },
+      icon: Star,
+      features: t('pricing.plans.pro.features', { returnObjects: true }),
+      limitations: [],
+      cta: t('pricing.plans.pro.cta'),
+      popular: true,
+    },
+    {
+      id: 'price_enterprise_monthly', 
+      name: t('pricing.plans.enterprise.name'),
+      description: t('pricing.plans.enterprise.description'),
+      price: { monthly: 99, yearly: 990 },
+      icon: Crown,
+      features: t('pricing.plans.enterprise.features', { returnObjects: true }),
+      limitations: [],
+      cta: t('pricing.plans.enterprise.cta'),
+      popular: false,
+    },
+  ];
+
+  const faqs = t('pricing.faq.questions', { returnObjects: true });
 
   useEffect(() => {
     // Check authentication status
@@ -122,8 +75,8 @@ export default function Pricing() {
   }, []);
 
   const handleSubscribe = async (tier) => {
+    // Handle free plan
     if (tier.id === 'free') {
-      // Handle free plan signup
       if (!user) {
         navigate('/Signup');
         return;
@@ -133,25 +86,49 @@ export default function Pricing() {
       return;
     }
 
+    // Handle enterprise plan - contact sales
     if (tier.name === 'Enterprise') {
-      // Handle enterprise contact
-      window.location.href = 'mailto:sales@example.com?subject=Enterprise Plan Inquiry';
+      window.location.href = 'mailto:sales@ebaylistingai.com?subject=Enterprise Plan Inquiry&body=Hi, I\'m interested in learning more about the Enterprise plan. Please contact me with more details.';
       return;
     }
 
+    // Require authentication for paid plans
     if (!user) {
-      // Redirect to signup for paid plans
-      navigate('/Signup');
+      // Store intended plan in sessionStorage for after signup
+      sessionStorage.setItem('intendedPlan', tier.id);
+      navigate('/Signup?upgrade=true');
       return;
     }
 
     try {
       setIsLoading(true);
       setLoadingPlan(tier.id);
+      
+      // Show user-friendly loading message
+      console.log(`Initiating checkout for ${tier.name} plan...`);
+      
       await initiateCheckout(tier.id);
+      
+      // Note: If we reach here in real Stripe integration, 
+      // it means there was an error since successful checkout redirects away
+      
     } catch (error) {
       console.error('Checkout failed:', error);
-      alert('Failed to start checkout process. Please try again.');
+      
+      // Show user-friendly error message
+      let errorMessage = 'Failed to start checkout process. Please try again.';
+      
+      if (error.message.includes('authentication')) {
+        errorMessage = 'Please log in to upgrade your plan.';
+      } else if (error.message.includes('Stripe')) {
+        errorMessage = 'Payment system is currently unavailable. Please try again later.';
+      } else if (error.message.includes('network') || error.message.includes('fetch')) {
+        errorMessage = 'Network error. Please check your connection and try again.';
+      }
+      
+      // In a real app, you might want to use a toast notification instead of alert
+      alert(errorMessage);
+      
     } finally {
       setIsLoading(false);
       setLoadingPlan(null);
@@ -204,7 +181,7 @@ export default function Pricing() {
           
           {/* Billing Toggle */}
           <div className="mt-8 flex items-center justify-center space-x-4">
-            <span className={`text-sm ${!isYearly ? 'text-gray-900' : 'text-gray-500'}`}>Monthly</span>
+            <span className={`text-sm ${!isYearly ? 'text-gray-900' : 'text-gray-500'}`}>{t('pricing.monthly')}</span>
             <button
               onClick={() => setIsYearly(!isYearly)}
               className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
@@ -218,7 +195,7 @@ export default function Pricing() {
               />
             </button>
             <span className={`text-sm ${isYearly ? 'text-gray-900' : 'text-gray-500'}`}>
-              Yearly <Badge variant="secondary" className="ml-1">Save 17%</Badge>
+              {t('pricing.yearly')} <Badge variant="secondary" className="ml-1">{t('pricing.save')}</Badge>
             </span>
           </div>
         </div>
@@ -239,12 +216,12 @@ export default function Pricing() {
               >
                 {tier.popular && (
                   <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white">
-                    Most Popular
+                    {t('pricing.mostPopular')}
                   </Badge>
                 )}
                 {currentPlan && (
                   <Badge className="absolute -top-3 right-4 bg-green-600 text-white">
-                    Current Plan
+                    {t('pricing.currentPlan')}
                   </Badge>
                 )}
                 
@@ -259,10 +236,10 @@ export default function Pricing() {
                 <CardContent>
                   <div className="text-center mb-6">
                     <span className="text-4xl font-bold text-gray-900">${price}</span>
-                    {price > 0 && <span className="text-gray-600">/{isYearly ? 'year' : 'month'}</span>}
+                    {price > 0 && <span className="text-gray-600">/{isYearly ? t('pricing.year') : t('pricing.month')}</span>}
                     {isYearly && price > 0 && (
                       <div className="text-sm text-green-600 font-medium">
-                        Save ${tier.price.monthly * 12 - tier.price.yearly} yearly
+                        {t('pricing.saveYearly', { amount: tier.price.monthly * 12 - tier.price.yearly })}
                       </div>
                     )}
                   </div>
@@ -287,10 +264,10 @@ export default function Pricing() {
                     {isLoading && loadingPlan === tier.id ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Processing...
+                        {t('pricing.processing')}
                       </>
                     ) : currentPlan ? (
-                      'Current Plan'
+                      t('pricing.currentPlan')
                     ) : (
                       <>
                         {tier.cta}
@@ -307,29 +284,29 @@ export default function Pricing() {
         {/* Feature Comparison */}
         <div className="mt-16">
           <h3 className="text-2xl font-bold text-center text-gray-900 mb-8">
-            All plans include
+            {t('pricing.allPlansInclude.title')}
           </h3>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             <div className="text-center">
               <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
                 <Zap className="h-6 w-6 text-blue-600" />
               </div>
-              <h4 className="font-semibold text-gray-900">AI-Powered Descriptions</h4>
-              <p className="text-sm text-gray-600">Generate compelling, SEO-optimized listing descriptions</p>
+              <h4 className="font-semibold text-gray-900">{t('pricing.allPlansInclude.aiDescriptions.title')}</h4>
+              <p className="text-sm text-gray-600">{t('pricing.allPlansInclude.aiDescriptions.description')}</p>
             </div>
             <div className="text-center">
               <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
                 <Star className="h-6 w-6 text-blue-600" />
               </div>
-              <h4 className="font-semibold text-gray-900">Template Library</h4>
-              <p className="text-sm text-gray-600">Professional templates for every product category</p>
+              <h4 className="font-semibold text-gray-900">{t('pricing.allPlansInclude.templates.title')}</h4>
+              <p className="text-sm text-gray-600">{t('pricing.allPlansInclude.templates.description')}</p>
             </div>
             <div className="text-center">
               <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
                 <Crown className="h-6 w-6 text-blue-600" />
               </div>
-              <h4 className="font-semibold text-gray-900">Browser Rendering</h4>
-              <p className="text-sm text-gray-600">Extract product details from any URL automatically</p>
+              <h4 className="font-semibold text-gray-900">{t('pricing.allPlansInclude.browserRendering.title')}</h4>
+              <p className="text-sm text-gray-600">{t('pricing.allPlansInclude.browserRendering.description')}</p>
             </div>
           </div>
         </div>
@@ -337,7 +314,7 @@ export default function Pricing() {
         {/* FAQ Section */}
         <div className="mt-16">
           <h3 className="text-2xl font-bold text-center text-gray-900 mb-8">
-            Frequently Asked Questions
+            {t('pricing.faq.title')}
           </h3>
           <div className="max-w-3xl mx-auto space-y-6">
             {faqs.map((faq, index) => (
@@ -352,17 +329,17 @@ export default function Pricing() {
         {/* CTA Section */}
         <div className="mt-16 text-center bg-white rounded-lg p-8 shadow-sm">
           <h3 className="text-2xl font-bold text-gray-900 mb-4">
-            Ready to supercharge your eBay descriptions?
+            {t('pricing.cta.title')}
           </h3>
           <p className="text-lg text-gray-600 mb-6">
-            Join thousands of sellers who are already using AI to create better descriptions faster.
+            {t('pricing.cta.subtitle')}
           </p>
           <div className="space-y-4 sm:space-y-0 sm:space-x-4 sm:flex sm:justify-center">
             <Button size="lg" onClick={() => navigate('/Signup')} className="bg-blue-600 hover:bg-blue-700">
-              Start Your Free Trial
+              {t('pricing.cta.startTrial')}
             </Button>
             <Button size="lg" variant="outline" asChild>
-              <Link to="/Dashboard">View Demo</Link>
+              <Link to="/Dashboard">{t('pricing.cta.viewDemo')}</Link>
             </Button>
           </div>
         </div>

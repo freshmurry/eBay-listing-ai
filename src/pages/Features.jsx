@@ -49,12 +49,12 @@ const features = [
 ];
 
 const integrations = [
-  { name: "eBay API", logo: "🛒", description: "Direct integration with eBay's official API" },
-  { name: "Amazon", logo: "📦", description: "Import products from Amazon listings" },
-  { name: "Shopify", logo: "🏪", description: "Sync with your Shopify store" },
-  { name: "WooCommerce", logo: "🔧", description: "Connect to WooCommerce stores" },
-  { name: "AliExpress", logo: "🌐", description: "Source products from AliExpress" },
-  { name: "Etsy", logo: "🎨", description: "Import from Etsy marketplace" }
+  { name: "eBay Marketplace", logo: "🛒", description: "Optimized specifically for eBay listing requirements" },
+  { name: "Amazon URLs", logo: "📦", description: "Extract product details from Amazon product pages" },
+  { name: "Shopify URLs", logo: "🏪", description: "Import product information from Shopify stores" },
+  { name: "WooCommerce URLs", logo: "🔧", description: "Extract details from WooCommerce product pages" },
+  { name: "AliExpress URLs", logo: "🌐", description: "Source product information from AliExpress listings" },
+  { name: "General E-commerce", logo: "🔗", description: "Smart extraction from most e-commerce websites" }
 ];
 
 const stats = [
@@ -171,10 +171,10 @@ export default function Features() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-              Seamless Integrations
+              Smart URL Extraction
             </h2>
             <p className="mx-auto mt-4 max-w-2xl text-lg text-slate-600">
-              Connect with your favorite platforms and marketplaces for a unified selling experience.
+              Extract product information from URLs across major e-commerce platforms to quickly create eBay listings.
             </p>
           </div>
 
@@ -210,7 +210,7 @@ export default function Features() {
               </Button>
             </Link>
             <Link to={createPageUrl("Pricing")}>
-              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-blue-600 px-8 py-3">
+              <Button size="lg" variant="outline" className="border-2 border-white text-white hover:bg-white hover:text-blue-600 font-semibold px-8 py-3">
                 View Pricing Plans
               </Button>
             </Link>

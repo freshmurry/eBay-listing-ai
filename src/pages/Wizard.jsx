@@ -56,8 +56,7 @@ export default function Wizard() {
         // Check usage limit before creating new project
         if (checkUsageLimit('listings')) {
           setShowUpgradeModal(true);
-          // Redirect back to dashboard
-          window.location.href = '/Dashboard';
+          // Don't redirect - let the modal stay visible
           return;
         }
         

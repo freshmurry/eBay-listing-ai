@@ -19,8 +19,10 @@ import { InvokeLLM } from "@/api/integrations";
 import { useSubscription, UsageLimitGuard } from "@/components/SubscriptionManager";
 import { Progress } from "@/components/ui/progress";
 import { STRIPE_PLANS, getPlanLimits } from "@/utils/stripe";
+import { useTranslation } from 'react-i18next';
 
 const ProjectCard = ({ project, onDelete, onView }) => {
+  const { t } = useTranslation();
   const [suggestedTime, setSuggestedTime] = useState(project.suggestedListTime || "");
   const [isGettingTime, setIsGettingTime] = useState(false);
 
@@ -115,29 +117,29 @@ Provide ONLY the day and time, nothing else.`,
       <div className="flex items-start justify-between">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-3 mb-2">
-            <h3 className="font-semibold text-slate-900 text-lg truncate group-hover:text-blue-600 transition-colors">{project.title || 'Untitled Project'}</h3>
+            <h3 className="font-semibold text-slate-900 text-lg truncate group-hover:text-blue-600 transition-colors">{project.title || t('dashboard.projectCard.untitledProject')}</h3>
             <Badge className={`${getStatusColor(project.status)} border`}>
-              {project.status === 'COMPLETED' ? 'Completed' : 'Draft'}
+              {project.status === 'COMPLETED' ? t('dashboard.projectCard.completed') : t('dashboard.projectCard.draft')}
             </Badge>
           </div>
           <p className="text-slate-600 text-sm mb-3 truncate">{project.description?.replace(/<[^>]+>/g, '').substring(0, 120)}...</p>
           <div className="flex items-center gap-4 text-xs text-slate-500 mb-4">
-            <span>Created: {new Date(project.created_date).toLocaleDateString()}</span>
+            <span>{t('dashboard.projectCard.created')}: {new Date(project.created_date).toLocaleDateString()}</span>
             {project.images?.length > 0 &&
-            <span><i className="bi bi-image mr-1"></i>{project.images.length} images</span>
+            <span><i className="bi bi-image mr-1"></i>{project.images.length} {t('dashboard.projectCard.images')}</span>
             }
             <span className="text-blue-600 group-hover:text-blue-700 font-medium">
-              Click to edit project
+              {t('dashboard.projectCard.clickToEdit')}
             </span>
           </div>
           {project.status === 'COMPLETED' &&
           <div className="mt-4 p-3 bg-indigo-50 rounded-lg border border-indigo-100">
               <p className="text-sm font-semibold text-indigo-800 flex items-center gap-2">
                 <i className="bi bi-graph-up-arrow"></i>
-                Best Time to List
+                {t('dashboard.projectCard.bestTimeToList')}
               </p>
               {isGettingTime ?
-            <p className="text-xs text-indigo-700 animate-pulse">Getting suggestion...</p> :
+            <p className="text-xs text-indigo-700 animate-pulse">{t('dashboard.projectCard.gettingSuggestion')}</p> :
 
             <p className="text-xs text-indigo-700">{suggestedTime}</p>
             }
@@ -154,7 +156,7 @@ Provide ONLY the day and time, nothing else.`,
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Preview HTML</p>
+                  <p>{t('dashboard.projectCard.preview')} HTML</p>
                 </TooltipContent>
               </Tooltip>
             )}
@@ -177,7 +179,7 @@ Provide ONLY the day and time, nothing else.`,
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <p>Delete Project</p>
+                <p>{t('dashboard.projectCard.delete')} Project</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
@@ -188,6 +190,7 @@ Provide ONLY the day and time, nothing else.`,
 };
 
 export default function Dashboard() {
+  const { t } = useTranslation();
   const [projects, setProjects] = useState([]);
   const [filteredProjects, setFilteredProjects] = useState([]);
   const [statusFilter, setStatusFilter] = useState("ALL");
@@ -230,13 +233,13 @@ export default function Dashboard() {
   };
 
   const deleteProject = async (projectId) => {
-    if (confirm("Are you sure you want to delete this project?")) {
+    if (confirm(t('dashboard.confirmDelete'))) {
       try {
         await ListingProject.delete(projectId);
         loadData();
       } catch (error) {
         console.error("Error deleting project:", error);
-        alert("Failed to delete project.");
+        alert(t('dashboard.deleteError'));
       }
     }
   };
@@ -246,11 +249,9 @@ export default function Dashboard() {
       <div className="max-w-7xl mx-auto space-y-8">
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
           <div>
-            <h1 className="text-4xl font-bold text-[var(--text-primary)]">Welcome to eBay Listing Description AI
-
-            </h1>
+            <h1 className="text-4xl font-bold text-[var(--text-primary)]">{t('dashboard.title')}</h1>
                         <p className="text-xl text-[var(--text-secondary)] mb-8">
-              Generate professional eBay descriptions with AI-powered optimization
+              {t('dashboard.subtitle')}
             </p>
           </div>
           <UsageLimitGuard type="listings">
@@ -262,7 +263,7 @@ export default function Dashboard() {
                 disabled={checkUsageLimit('listings')}
               >
                 <i className="bi bi-plus-circle mr-2"></i>
-                {checkUsageLimit('listings') ? 'Usage Limit Reached' : 'Create New Description'}
+                {checkUsageLimit('listings') ? t('dashboard.usageLimitReached') : t('dashboard.createNew')}
               </Button>
             </Link>
           </UsageLimitGuard>
@@ -272,14 +273,14 @@ export default function Dashboard() {
             <Card className="bg-white border-[var(--border-color)] shadow-sm hover:shadow-md transition-shadow duration-300">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-sm font-medium text-[var(--text-secondary)]">Total Projects</CardTitle>
+                  <CardTitle className="text-sm font-medium text-[var(--text-secondary)]">{t('dashboard.stats.totalProjects')}</CardTitle>
                   <i className="bi bi-folder text-brand-primary"></i>
                 </div>
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold text-[var(--text-primary)]">{stats.total}</div>
                 <p className="text-xs text-[var(--text-secondary)] mt-1">
-                  {stats.total === 0 ? "No projects yet" : "All time"}
+                  {stats.total === 0 ? t('dashboard.stats.noProjects') : t('dashboard.stats.allTime')}
                 </p>
               </CardContent>
             </Card>
@@ -287,14 +288,14 @@ export default function Dashboard() {
             <Card className="bg-white border-[var(--border-color)] shadow-sm hover:shadow-md transition-shadow duration-300">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-sm font-medium text-[var(--text-secondary)]">Completed</CardTitle>
+                  <CardTitle className="text-sm font-medium text-[var(--text-secondary)]">{t('dashboard.stats.completed')}</CardTitle>
                   <i className="bi bi-check-circle text-emerald-600"></i>
                 </div>
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold text-emerald-600">{stats.completed}</div>
                 <p className="text-xs text-[var(--text-secondary)] mt-1">
-                  Ready to publish
+                  {t('dashboard.stats.readyToPublish')}
                 </p>
               </CardContent>
             </Card>
@@ -302,14 +303,14 @@ export default function Dashboard() {
             <Card className="bg-white border-[var(--border-color)] shadow-sm hover:shadow-md transition-shadow duration-300">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-sm font-medium text-[var(--text-secondary)]">Drafts</CardTitle>
+                  <CardTitle className="text-sm font-medium text-[var(--text-secondary)]">{t('dashboard.stats.drafts')}</CardTitle>
                   <i className="bi bi-file-earmark-text text-amber-600"></i>
                 </div>
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold text-amber-600">{stats.draft}</div>
                 <p className="text-xs text-[var(--text-secondary)] mt-1">
-                  In progress
+                  {t('dashboard.stats.inProgress')}
                 </p>
               </CardContent>
             </Card>
@@ -318,7 +319,7 @@ export default function Dashboard() {
             <Card className="bg-gradient-to-br from-blue-50 to-purple-50 border-blue-200 shadow-sm hover:shadow-md transition-shadow duration-300">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-sm font-medium text-blue-700">Monthly Usage</CardTitle>
+                  <CardTitle className="text-sm font-medium text-blue-700">{subscription?.plan === 'FREE' ? t('dashboard.stats.usage') : t('dashboard.stats.monthlyUsage')}</CardTitle>
                   <i className="bi bi-graph-up text-blue-600"></i>
                 </div>
               </CardHeader>
@@ -337,7 +338,7 @@ export default function Dashboard() {
                     </p>
                   </>
                 ) : (
-                  <div className="text-2xl font-bold text-blue-700">Loading...</div>
+                  <div className="text-2xl font-bold text-blue-700">{t('dashboard.stats.loading')}</div>
                 )}
               </CardContent>
             </Card>
@@ -346,9 +347,9 @@ export default function Dashboard() {
         {/* Project Filters */}
         <div className="flex gap-2 flex-wrap">
           {[
-            { key: "ALL", label: "All Projects", count: stats.total },
-            { key: "DRAFT", label: "Draft", count: stats.draft },
-            { key: "COMPLETED", label: "Completed", count: stats.completed }
+            { key: "ALL", label: t('dashboard.filters.allProjects'), count: stats.total },
+            { key: "DRAFT", label: t('dashboard.filters.draft'), count: stats.draft },
+            { key: "COMPLETED", label: t('dashboard.filters.completed'), count: stats.completed }
           ].map(filter => (
             <Button
               key={filter.key}
@@ -366,7 +367,7 @@ export default function Dashboard() {
         <Card className="bg-white shadow-sm border-[var(--border-color)]">
           <CardHeader>
             <CardTitle className="text-2xl font-bold text-[var(--text-primary)]">
-              {statusFilter === "ALL" ? "All Projects" : statusFilter === "DRAFT" ? "Draft Projects" : "Completed Projects"}
+              {statusFilter === "ALL" ? t('dashboard.filters.allProjects') : statusFilter === "DRAFT" ? t('dashboard.filters.draft') + " Projects" : t('dashboard.filters.completed') + " Projects"}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -382,20 +383,20 @@ export default function Dashboard() {
               <div className="text-center py-12">
                 <i className="bi bi-folder2-open text-5xl text-slate-300 mx-auto mb-4"></i>
                 <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-2">
-                  {statusFilter === "ALL" ? "No projects yet" : `No ${statusFilter.toLowerCase()} projects`}
+                  {statusFilter === "ALL" ? t('dashboard.emptyState.noProjects') : `${t('dashboard.emptyState.no' + statusFilter.charAt(0) + statusFilter.slice(1).toLowerCase() + 'Projects')}`}
                 </h3>
                 <p className="text-[var(--text-secondary)] mb-6">
                   {statusFilter === "DRAFT" 
-                    ? "Start creating a new listing to see drafts here!"
+                    ? t('dashboard.emptyState.startCreating')
                     : statusFilter === "COMPLETED"
-                    ? "Complete a description in the wizard to see it here!"
-                    : "Create your first listing to get started!"
+                    ? t('dashboard.emptyState.completeDescription')
+                    : t('dashboard.emptyState.createFirstListing')
                   }
                 </p>
                 <Link to={createPageUrl("Wizard")}>
                   <Button className="bg-brand-primary hover:bg-brand-primary-hover text-white rounded-xl">
                     <i className="bi bi-plus-circle mr-2"></i>
-                    Create New Project
+                    {t('dashboard.emptyState.createNewProject')}
                   </Button>
                 </Link>
               </div>
@@ -421,7 +422,7 @@ export default function Dashboard() {
           <DialogHeader>
             <DialogTitle>{previewProject?.title}</DialogTitle>
             <DialogDescription>
-              Preview of your completed eBay listing description
+              {t('dashboard.preview.title')}
             </DialogDescription>
           </DialogHeader>
           <div className="flex-1 overflow-auto">
